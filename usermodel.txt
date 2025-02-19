@@ -1,0 +1,11 @@
+package com.example.sql_database
+
+data class usermodel(
+    val Id:Int=0,
+    val Name:String,
+    val Gender:String,
+    val College:String,
+    val Email:String,
+    val Password:String,
+    val Course:String
+)

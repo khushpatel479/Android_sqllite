@@ -1,0 +1,92 @@
+package com.example.sql_database
+
+import android.content.ContentValues
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
+import android.content.Context
+import android.database.Cursor
+import java.util.jar.Attributes.Name
+
+@Suppress("UNREACHABLE_CODE")
+class dbhelper(context:Context):SQLiteOpenHelper(context,dbname,null,dbversion)
+{
+    companion object{
+      private const val dbname="userdatabase.db"
+        private const val dbversion = 1
+        private const val tblname = "users"
+
+        private const val COLLUMN_Id = "id"
+
+        private const val COLLUMN_NAME = "name"
+        private const val COLLUMN_GENDER = "gender"
+        private const val COLLUMN_COLLEGE = "college"
+        private const val COLLUMN_EMAIL = "email"
+        private const val COLLUMN_PASSWORD = "password"
+        private const val COLLUMN_COURSE = "course"
+
+
+
+
+    }
+
+    override fun onCreate(db: SQLiteDatabase) {
+        val createtable ="""
+            CREATE TABLE $tblname(
+            $COLLUMN_Id INTEGER PRIMARY KEY AUTOINCREMENT,
+            $COLLUMN_NAME TEXT,
+            $COLLUMN_GENDER TEXT,
+            $COLLUMN_COLLEGE TEXT,
+            $COLLUMN_EMAIL TEXT,
+            $COLLUMN_PASSWORD TEXT,
+            $COLLUMN_COURSE TEXT
+            )
+        """.trimIndent()
+        db.execSQL(createtable)
+        TODO("Not yet implemented")
+    }
+
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        TODO("Not yet implemented")
+        db.execSQL("DROP TABLE IF EXISTS $tblname")
+        onCreate(db)
+    }
+    fun addUser(user:usermodel):Boolean
+    {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put(COLLUMN_NAME,user.Name)
+            put(COLLUMN_GENDER,user.Gender)
+            put(COLLUMN_COLLEGE,user.College)
+            put(COLLUMN_EMAIL , user.Email)
+            put(COLLUMN_PASSWORD,user.Password)
+            put(COLLUMN_COURSE , user.Course)
+        }
+        val res = db.insert(tblname,null,values)
+        db.close()
+        return res != -1L
+    }
+    fun getalluser():List<usermodel>
+    {
+        val userList = mutableListOf<usermodel>()
+        val db = this.readableDatabase
+        val cursor:Cursor = db.rawQuery("SELECT * FROM $tblname",null)
+        if(cursor.moveToFirst())
+        {
+            do{
+                val user = usermodel(
+                    Name = cursor.getString(cursor.getColumnIndexOrThrow(COLLUMN_NAME)),
+                    Gender = cursor.getString(cursor.getColumnIndexOrThrow(COLLUMN_GENDER)),
+                    College = cursor.getString(cursor.getColumnIndexOrThrow(COLLUMN_COLLEGE)),
+                    Email = cursor.getString(cursor.getColumnIndexOrThrow(COLLUMN_EMAIL)),
+                    Password = cursor.getString(cursor.getColumnIndexOrThrow(COLLUMN_PASSWORD)),
+                    Course = cursor.getString(cursor.getColumnIndexOrThrow(COLLUMN_COURSE))
+                    )
+                userList.add(user)
+                }while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return userList
+        }
+    }
+

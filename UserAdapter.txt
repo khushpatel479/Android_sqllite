@@ -1,0 +1,43 @@
+package com.example.sql_database
+
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.appcompat.view.menu.MenuView.ItemView
+import androidx.recyclerview.widget.RecyclerView
+
+class adapter(private var user:List<usermodel>,context:Context): RecyclerView.Adapter<adapter.useradapter>() {
+    class useradapter(itemView: View):RecyclerView.ViewHolder(itemView)
+    {
+        val dname:TextView = itemView.findViewById(R.id.disname)
+        val dgen:TextView = itemView.findViewById(R.id.disgender)
+        val dcollege:TextView = itemView.findViewById(R.id.discollege)
+        val demail:TextView = itemView.findViewById(R.id.disemail)
+        val dpass:TextView = itemView.findViewById(R.id.dispaa)
+        val dcourse:TextView = itemView.findViewById(R.id.discourse)
+
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): useradapter {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.card,parent,false)
+        return useradapter(view)
+    }
+
+    override fun getItemCount(): Int {
+        TODO("Not yet implemented")
+    }
+
+    override fun onBindViewHolder(holder: useradapter, position: Int) {
+        val user = user[position]
+        holder.dname.text = user.Name
+        holder.dgen.text = user.Gender
+        holder.dcollege.text = user.College
+        holder.demail.text = user.Email
+        holder.dpass.text = user.Password
+        holder.dcourse.text = user.Course
+
+    }
+
+}
