@@ -1,0 +1,117 @@
+package com.example.registrationdemo
+
+import android.content.ContentValues
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
+
+class DbHelperfile(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+
+    companion object {
+        private const val DATABASE_NAME = "UserDatabase.db"
+        private const val DATABASE_VERSION = 1
+        private const val TABLE_NAME = "users"
+        private const val COLUMN_ID = "id"
+        private const val COLUMN_NAME = "name"
+        private const val COLUMN_GENDER = "gender"
+        private const val COLUMN_ADDRESS = "address"
+        private const val COLUMN_COLLAGE = "collage"
+        private const val COLUMN_DEPARTMENT = "department"
+        private const val COLUMN_PASSWORD = "password"
+        private const val COLUMN_EMAIL = "email"
+        private const val COLUMN_PHONE = "phone"
+    }
+
+    override fun onCreate(db: SQLiteDatabase) {
+        val createTableQuery = """
+            CREATE TABLE $TABLE_NAME (
+                $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                $COLUMN_NAME TEXT,
+                $COLUMN_GENDER TEXT,
+                $COLUMN_ADDRESS TEXT,
+                $COLUMN_COLLAGE TEXT,
+                $COLUMN_DEPARTMENT TEXT,
+                $COLUMN_PASSWORD TEXT,
+                $COLUMN_EMAIL TEXT,
+                $COLUMN_PHONE TEXT
+            )
+        """.trimIndent()
+        db.execSQL(createTableQuery)
+    }
+
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        db.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
+        onCreate(db)
+    }
+
+    // Insert User using UserModel
+    fun insertUser(user: UserModel): Boolean {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_NAME, user.name)
+            put(COLUMN_GENDER, user.gender)
+            put(COLUMN_ADDRESS, user.address)
+            put(COLUMN_COLLAGE, user.collage)
+            put(COLUMN_DEPARTMENT, user.department)
+            put(COLUMN_PASSWORD, user.password)
+            put(COLUMN_EMAIL, user.email)
+            put(COLUMN_PHONE, user.phone)
+        }
+        val result = db.insert(TABLE_NAME, null, values)
+        db.close()
+        return result != -1L
+    }
+
+    // Fetch all users
+    fun getAllUsers(): List<UserModel> {
+        val userList = mutableListOf<UserModel>()
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM $TABLE_NAME", null)
+
+        if (cursor.moveToFirst()) {
+            do {
+                val user = UserModel(
+                    id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)),
+                    name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME)),
+                    gender = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_GENDER)),
+                    address = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ADDRESS)),
+                    collage = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_COLLAGE)),
+                    department = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DEPARTMENT)),
+                    password = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PASSWORD)),
+                    email = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_EMAIL)),
+                    phone = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_PHONE))
+                )
+                userList.add(user)
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return userList
+    }
+
+    // Update User
+    fun updateUser(user: UserModel): Boolean {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_NAME, user.name)
+            put(COLUMN_GENDER, user.gender)
+            put(COLUMN_ADDRESS, user.address)
+            put(COLUMN_COLLAGE, user.collage)
+            put(COLUMN_DEPARTMENT, user.department)
+            put(COLUMN_PASSWORD, user.password)
+            put(COLUMN_EMAIL, user.email)
+            put(COLUMN_PHONE, user.phone)
+        }
+        val result = db.update(TABLE_NAME, values, "$COLUMN_ID=?", arrayOf(user.id.toString()))
+        db.close()
+        return result > 0
+    }
+
+    // Delete User
+    fun deleteUser(userId: Int): Boolean {
+        val db = writableDatabase
+        val result = db.delete(TABLE_NAME, "$COLUMN_ID=?", arrayOf(userId.toString()))
+        db.close()
+        return result > 0
+    }
+}
